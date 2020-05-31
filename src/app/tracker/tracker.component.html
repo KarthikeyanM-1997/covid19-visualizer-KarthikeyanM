@@ -1,27 +1,37 @@
 <div>
-   <span style="float:right; margin-right:20%; padding:20px"><button class='btn btn-primary' (click)='logout()'>Logout</button></span>
+   <span style="float:right; margin-right:20%; padding:20px"><button class='btn btn-danger'
+         (click)='logout()'>Logout</button></span>
 </div>
 <div class="container">
-    <div class="row">
-       <div class="col-lg-12 p-3">
-          <h1>India COVID Tracker</h1>
-       </div>
-    </div>
-    <div class="row m-3">
-       <div class="col-lg-4"><button class="btn btn-primary" (click)="showActive()">Active</button></div>
-       <div class="col-lg-4"><button class="btn btn-primary" (click)="showConfirmed()">Confirmed</button></div>
-       <div class="col-lg-4"><button class="btn btn-primary" (click)="showDeceased()">Deceased</button></div>
-    </div>
-    <div class="row">
-       <div class="col-lg-6">
-          <google-chart [type]="type" [data]="geoData" [columns]="chartColumns" [options]="geoOptions"
-             (select)="onSelectState($event)">
-          </google-chart>
-       </div>
-       <div class="col-lg-6">
+   <div class="row">
+      <div class="col-lg-12 p-3">
+         <h1>India COVID Tracker</h1>
+      </div>
+   </div>
+   <div class="row m-3">
+      <div class="col-lg-4"><button class="btn btn-primary" (click)="showActive()">Active</button></div>
+      <div class="col-lg-4"><button class="btn btn-primary" (click)="showConfirmed()">Confirmed</button></div>
+      <div class="col-lg-4"><button class="btn btn-primary" (click)="showDeceased()">Deceased</button></div>
+   </div>
+   <div class="row">
+      <div class="col-lg-6">
+
+         <div class="alert alert-info">
+            <strong>Info!</strong> Click on the state on the map to view district data.
+         </div>
+
+         <google-chart [type]="type" [data]="geoData" [columns]="chartColumns" [options]="geoOptions"
+            (select)="onSelectState($event)">
+         </google-chart>
+      </div>
+      <div class="col-lg-6">
          <google-chart type="LineChart" [data]="lineData" [options]="lineOptions" (select)="onSelectState($event)">
          </google-chart>
-       </div>
-    </div>
- </div>
- 
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-lg-12">
+         <div id="districtTableDiv"></div>
+      </div>
+   </div>
+</div>

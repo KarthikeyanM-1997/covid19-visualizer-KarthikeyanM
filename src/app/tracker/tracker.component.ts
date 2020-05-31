@@ -35,7 +35,7 @@ export class TrackerComponent implements OnInit {
     height: 480,
     datalessRegionColor: 'transparent',
     enableRegionInteractivity: true,
-    colorAxis: { colors: ['#00ff33', '#ff0000'] },
+    colorAxis: { colors: ['#ffffff', '#ff0000'] }
   };
 
   lineOptions = {
@@ -57,22 +57,107 @@ export class TrackerComponent implements OnInit {
   onSelectState(evt) {
     try {
       let selectedState = this.geoData[evt['selection'][0]['row']][0];
-      if(selectedState === "Odisha"){
-        selectedState = "Orissa";
-      }
-      if(selectedState === "IN-UT"){
+
+      if (selectedState === "IN-UT") {
         selectedState = "Uttarakhand";
       }
-      console.log(selectedState);
-      for(let i = 0; i < this.allData.length; i++){
+
+      let selectedData = [];
+      for (let i = 1; i < 37; i++) {
         //console.log(this.allData[i]['State']);
-        if(this.allData[i]['State'] === selectedState){
-          console.log(this.allData[i]);
+        if (this.districtData[i]['state'] === selectedState) {
+          console.log(this.districtData[i]);
+          selectedData = this.districtData[i];
+          break;
         }
+      }
+
+      let tableDiv = (<HTMLDivElement>document.getElementById("districtTableDiv"));
+
+      tableDiv.innerHTML = "";
+      
+
+      let table = (<HTMLTableElement>document.createElement("table"));
+
+      table.setAttribute("class", "table table-striped table-bordered table-hover table-condensed");
+
+      let hRow = <HTMLTableSectionElement>table.createTHead();
+
+      let tHead = <HTMLTableRowElement>hRow.insertRow();
+
+      let h1 = tHead.insertCell();
+      h1.innerText = "District";
+
+      let h2 = tHead.insertCell();
+      h2.innerText = "Active";
+      let h3 = tHead.insertCell();
+      h3.innerText = "Confirmed";
+      let h4 = tHead.insertCell();
+      h4.innerText = "Deceased";
+
+      let bRow = <HTMLTableSectionElement>table.createTBody();
+
+      let tBody = <HTMLTableRowElement>bRow.insertRow();
+
+      tableDiv.appendChild(table);
+
+      for (let i = 0; i < selectedData['districtData'].length; i++) {
+        let bRow = <HTMLTableRowElement>table.insertRow();
+        let h1 = bRow.insertCell();
+        h1.innerText = selectedData['districtData'][i]['district'];
+
+        let h2 = bRow.insertCell();
+        h2.innerText = selectedData['districtData'][i]['active'];
+        let h3 = bRow.insertCell();
+        h3.innerText = selectedData['districtData'][i]['confirmed'];
+        let h4 = bRow.insertCell();
+        h4.innerText = selectedData['districtData'][i]['deceased'];
       }
     }
     catch (e) {
-      console.log("None selected");
+      let tableDiv = (<HTMLDivElement>document.getElementById("districtTableDiv"));
+
+      tableDiv.innerHTML = "";
+
+      let table = (<HTMLTableElement>document.createElement("table"));
+
+      table.setAttribute("class", "table table-striped table-bordered table-hover table-condensed");
+
+      let hRow = <HTMLTableSectionElement>table.createTHead();
+
+      let tHead = <HTMLTableRowElement>hRow.insertRow();
+
+      let h1 = tHead.insertCell();
+      h1.innerText = "District";
+
+      let h2 = tHead.insertCell();
+      h2.innerText = "Active";
+      let h3 = tHead.insertCell();
+      h3.innerText = "Confirmed";
+      let h4 = tHead.insertCell();
+      h4.innerText = "Deceased";
+
+      let bRow = <HTMLTableSectionElement>table.createTBody();
+
+      let tBody = <HTMLTableRowElement>bRow.insertRow();
+
+      tableDiv.appendChild(table);
+
+      console.log(this.nationalData);
+
+      for (let i = 1; i < 38; i++) {
+        let bRow = <HTMLTableRowElement>table.insertRow();
+        let h1 = bRow.insertCell();
+        h1.innerText = this.nationalData[i]['state'];
+
+        let h2 = bRow.insertCell();
+        h2.innerText = this.nationalData[i]['active'];
+        let h3 = bRow.insertCell();
+        h3.innerText = this.nationalData[i]['confirmed'];
+        let h4 = bRow.insertCell();
+        h4.innerText = this.nationalData[i]['deaths'];
+      }
+
     }
 
   }
@@ -81,11 +166,19 @@ export class TrackerComponent implements OnInit {
   nationObjectDeceased = [];
   nationObjectConfirmed = [];
 
+  districtData: any;
+
+  nationalData = [];
 
   constructor(private httpClient: HttpClient, private router: Router) {
     this.httpClient.get('https://api.covid19india.org/v2/state_district_wise.json').subscribe(data => {
 
-      console.log(data);
+      //this.districtData = data;
+
+      //console.log(data);
+
+      this.districtData = data;
+
       for (let i = 0; i < 37; i++) {
         let stateObject = [];
         let stateObject2 = [];
@@ -138,6 +231,8 @@ export class TrackerComponent implements OnInit {
 
     this.httpClient.get('https://api.covid19india.org/data.json').subscribe(data => {
 
+      this.nationalData = data['statewise'];
+
       let date: Date = new Date("30 January 2020");
       for (let i = 0; i < data['cases_time_series'].length; i++) {
 
@@ -146,15 +241,20 @@ export class TrackerComponent implements OnInit {
         this.nationConfirmedLine.push([this.addDays(date, i), +data['cases_time_series'][i].totalconfirmed]);
       }
       this.lineData = this.nationActiveLine;
+
+      this.onSelectState("");
     });
+
   }
+
+
   ngOnInit(): void {
     var token = localStorage.getItem('currentUser');;
 
-    if(token === null){
+    if (token === null) {
       this.router.navigate(["/login"]);
     }
-    
+
   }
 
   showActive() {
@@ -175,7 +275,7 @@ export class TrackerComponent implements OnInit {
 
   showConfirmed() {
     this.geoData = this.nationObjectConfirmed;
-    console.log(this.geoData);
+
     this.lineData = this.nationConfirmedLine;
     this.lineOptions = {
       title: 'Total Confirmed Cases',
@@ -230,12 +330,50 @@ export class TrackerComponent implements OnInit {
     this.lineOptions = newLineOpts;
   }
 
-  logout(){
-
+  logout() {
     localStorage.removeItem('currentUser');
-    
-    this.router.navigate(['/logout']);
 
+    this.router.navigate(['/logout']);
   }
+
+  stateCodes = {
+    "AN": "Andaman and Nicobar Islands",
+    "AP": "Andhra Pradesh",
+    "AR": "Arunachal Pradesh",
+    "AS": "Assam",
+    "BR": "Bihar",
+    "CG": "Chandigarh",
+    "CH": "Chhattisgarh",
+    "DN": "Dadra and Nagar Haveli",
+    "DD": "Daman and Diu",
+    "DL": "Delhi",
+    "GA": "Goa",
+    "GJ": "Gujarat",
+    "HR": "Haryana",
+    "HP": "Himachal Pradesh",
+    "JK": "Jammu and Kashmir",
+    "JH": "Jharkhand",
+    "KA": "Karnataka",
+    "KL": "Kerala",
+    "LA": "Ladakh",
+    "LD": "Lakshadweep",
+    "MP": "Madhya Pradesh",
+    "MH": "Maharashtra",
+    "MN": "Manipur",
+    "ML": "Meghalaya",
+    "MZ": "Mizoram",
+    "NL": "Nagaland",
+    "OR": "Odisha",
+    "PY": "Puducherry",
+    "PB": "Punjab",
+    "RJ": "Rajasthan",
+    "SK": "Sikkim",
+    "TN": "Tamil Nadu",
+    "TS": "Telangana",
+    "TR": "Tripura",
+    "UP": "Uttar Pradesh",
+    "UK": "Uttarakhand",
+    "WB": "West Bengal"
+  };
 
 }
