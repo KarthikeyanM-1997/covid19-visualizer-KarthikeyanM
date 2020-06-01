@@ -249,11 +249,6 @@ export class TrackerComponent implements OnInit {
 
 
   ngOnInit(): void {
-    var token = localStorage.getItem('currentUser');;
-
-    if (token === null) {
-      this.router.navigate(["/login"]);
-    }
 
   }
 

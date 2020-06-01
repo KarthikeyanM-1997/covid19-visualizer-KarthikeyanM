@@ -4,6 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { TrackerComponent } from './tracker/tracker.component';
 import { RegisterComponent } from './register/register.component';
+import { LoginGuardGuard } from './login-guard.guard';
 
 
 const routes: Routes = [{
@@ -16,7 +17,7 @@ const routes: Routes = [{
   path: "logout", component: LogoutComponent
 },
 {
-  path: "tracker", component: TrackerComponent
+  path: "tracker", component: TrackerComponent, canActivate: [LoginGuardGuard]
 },
 {
   path: "register", component: LoginComponent
