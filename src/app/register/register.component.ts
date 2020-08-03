@@ -15,6 +15,8 @@ export class RegisterComponent implements OnInit {
 
   message: string = "Click Login to authenticate.";
 
+  guestMsg = "Guest Login";
+
   ngOnInit(): void {
   }
 
@@ -42,6 +44,32 @@ export class RegisterComponent implements OnInit {
       this.message = "Check Login Info !";
     });
   }
+
+  guestLogin() {
+    this.guestMsg = "Logging In...";
+
+    let body = {
+      "email": "karthikeyan1997@gmail.com",
+      "password": "apple"
+    };
+
+    this.http.post("https://zen-user-api.herokuapp.com/users/authenticate", body).subscribe((data) => {
+
+      this.message = "Login Successful !";
+
+      console.log(data);
+      
+      localStorage.setItem('currentUser', data['token']);
+      
+      this.router.navigate(["/tracker"]);
+
+      this.guestMsg = "Guest Login";
+
+    }, (error) => {
+      this.message = "Check Login Info !";
+    });
+  }
+
 
   toRegister(){
     this.router.navigate(["/register"]);
